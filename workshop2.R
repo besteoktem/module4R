@@ -1,5 +1,7 @@
-#### Module-04 R ####
-#github
+#### workshop 1 ####
+#Module-04 R 
+#how to use github
+#beste oktem
 
 install.packages("tidyverse")
 library(tidyverse)
@@ -73,7 +75,7 @@ ggplot() +
   geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
   geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
 
-#--------------------------------------
+#diamond
 
 ggplot(data = diamonds) + 
   geom_bar(mapping = aes(x = cut))
@@ -130,6 +132,9 @@ ggplot(data = diamonds) +
 
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+
+
+
 
 #### workshop 2 ####
 
@@ -275,6 +280,159 @@ ggplot(mpg, aes(displ, hwy)) + geom_point()
 
 ggsave("my-plot.pdf")
 #> Saving 7 x 4.32 in image
+
+
+
+
+
+#### workshop 3 ####
+
+library(tidyverse)
+
+# Compute rate per 10,000
+table1 %>% 
+  mutate(rate = cases / population * 10000)
+#> # A tibble: 6 × 5
+#>   country      year  cases population  rate
+#>   <chr>       <int>  <int>      <int> <dbl>
+#> 1 Afghanistan  1999    745   19987071 0.373
+#> 2 Afghanistan  2000   2666   20595360 1.29 
+#> 3 Brazil       1999  37737  172006362 2.19 
+#> 4 Brazil       2000  80488  174504898 5.61 
+#> 5 China        1999 212258 1272915272 1.67 
+#> 6 China        2000 213766 1280428583 1.67
+
+# Compute cases per year
+table1 %>% 
+  count(year, wt = cases)
+#> # A tibble: 2 × 2
+#>    year      n
+#>   <int>  <int>
+#> 1  1999 250740
+#> 2  2000 296920
+
+# Visualise changes over time
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+
+
+#describe what each observation and each column represents.
+#Sketch out the processes you would use to calculate the rate for table2 and table3. You will need to perform four operations:
+#Extract the number of TB cases per country per year
+#Extract the matching population per country per year
+#Divide cases by population, and multiply by 10,000
+#Store back in the appropriate place
+
+
+
+table1
+#> # A tibble: 6 × 4
+#>   country      year  cases population
+#>   <chr>       <int>  <int>      <int>
+#> 1 Afghanistan  1999    745   19987071
+#> 2 Afghanistan  2000   2666   20595360
+#> 3 Brazil       1999  37737  172006362
+#> 4 Brazil       2000  80488  174504898
+#> 5 China        1999 212258 1272915272
+#> 6 China        2000 213766 1280428583
+
+
+table2
+#> # A tibble: 12 × 4
+#>   country      year type           count
+#>   <chr>       <int> <chr>          <int>
+#> 1 Afghanistan  1999 cases            745
+#> 2 Afghanistan  1999 population  19987071
+#> 3 Afghanistan  2000 cases           2666
+#> 4 Afghanistan  2000 population  20595360
+#> 5 Brazil       1999 cases          37737
+#> 6 Brazil       1999 population 172006362
+#> # ... with 6 more rows
+
+
+table3
+#> # A tibble: 6 × 3
+#>   country      year rate             
+#> * <chr>       <int> <chr>            
+#> 1 Afghanistan  1999 745/19987071     
+#> 2 Afghanistan  2000 2666/20595360    
+#> 3 Brazil       1999 37737/172006362  
+#> 4 Brazil       2000 80488/174504898  
+#> 5 China        1999 212258/1272915272
+#> 6 China        2000 213766/1280428583
+
+#increasing the number of rows and decreasing the number of columns(pivot longer)
+#for the reverse I can use; pivot_wider()
+
+table4 <- table2 |> 
+  pivot_wider(id_cols = c(country, year),
+              names_from = "type",
+              values_from = "count" 
+  )
+
+
+table5 <- table3 |> 
+  separate(rate, into = c("cases", "population"), sep = "/") 
+
+
+
+
+#I tried to use pivot wider but I couldn't find out how to create new collumn names with that code
+#  pivot_wider(id_cols = c(country, year),
+#              names_from = "cases", "population",
+#              values_from = "rate" 
+
+
+#Why are pivot_longer() and pivot_wider() not perfectly symmetrical? Carefully consider the following example. 
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
+#
+#Hint: look at the variable types and think about column names) pivot_longer() has a names_ptypes argument, e.g.  names_ptypes = list(year = double()). What does it do?
+
+#Why does this code fail?
+  table4a %>% 
+  pivot_longer(c(1999, 2000), names_to = "year", values_to = "cases")
+#> Error in `pivot_longer()`:
+#> ! Can't subset columns past the end.
+#> ℹ Locations 1999 and 2000 don't exist.
+#> ℹ There are only 3 columns.
+
+
+#Consider the sample tibble below. Do you need to make it wider or longer? What are the variables?
+  preg <- tribble(
+    ~pregnant, ~male, ~female,
+    "yes",     NA,    10,
+    "no",      20,    12
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
