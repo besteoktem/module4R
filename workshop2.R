@@ -376,8 +376,53 @@ table4 <- table2 |>
 table5 <- table3 |> 
   separate(rate, into = c("cases", "population"), sep = "/") 
 
+#-------
+#if I forgot what we did why go there -> https://jrnold.github.io/r4ds-exercise-solutions/tidy-data.html
 
+t2_cases <- filter(table2, type == "cases") %>%
+  rename(cases = count) %>%
+  arrange(country, year)
+t2_population <- filter(table2, type == "population") %>%
+  rename(population = count) %>%
+  arrange(country, year)
 
+t2_cases_per_cap <- tibble(
+  year = t2_cases$year,
+  country = t2_cases$country,
+  cases = t2_cases$cases,
+  population = t2_population$population
+) %>%
+  mutate(cases_per_cap = (cases / population) * 10000) %>%
+  select(country, year, cases_per_cap)
+
+t2_cases_per_cap <- t2_cases_per_cap %>%
+  mutate(type = "cases_per_cap") %>%
+  rename(count = cases_per_cap)
+
+bind_rows(table2, t2_cases_per_cap) %>%
+  arrange(country, year, type, count)
+
+table4c <-
+  tibble(
+    country = table4a$country,
+    `1999` = table4a[["1999"]] / table4b[["1999"]] * 10000,
+    `2000` = table4a[["2000"]] / table4b[["2000"]] * 10000
+    
+    table2 %>%
+      filter(type == "cases") %>%
+      ggplot(aes(year, count)) +
+      geom_line(aes(group = country), colour = "grey50") +
+      geom_point(aes(colour = country)) +
+      scale_x_continuous(breaks = unique(table2$year)) +
+      ylab("cases")
+    
+    tidy4a <- table4a %>% 
+      pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "cases")
+    tidy4b <- table4b %>% 
+      pivot_longer(c(`1999`, `2000`), names_to = "year", values_to = "population")
+  
+    
+#-------
 
 #I tried to use pivot wider but I couldn't find out how to create new collumn names with that code
 #  pivot_wider(id_cols = c(country, year),
@@ -391,11 +436,15 @@ stocks <- tibble(
   half  = c(   1,    2,     1,    2),
   return = c(1.88, 0.59, 0.92, 0.17)
 )
+    
 stocks %>% 
   pivot_wider(names_from = year, values_from = return) %>% 
   pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
-#
-#Hint: look at the variable types and think about column names) pivot_longer() has a names_ptypes argument, e.g.  names_ptypes = list(year = double()). What does it do?
+
+stocks %>%
+  pivot_wider(names_from = year, values_from = return)%>%
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return",
+               names_transform = list(year = as.numeric))
 
 #Why does this code fail?
   table4a %>% 
@@ -413,10 +462,23 @@ stocks %>%
     "no",      20,    12
   )
 
+  preg_tidy <- preg %>%
+    pivot_longer(c(male, female), names_to = "sex", values_to = "count")
+  
+  preg_tidy2 <- preg %>%
+    pivot_longer(c(male, female), names_to = "sex", values_to = "count", values_drop_na = TRUE)
+  
+  
 
+# import data to R
+  
+  students <- read_csv("https://pos.it/r4ds-students-csv")
 
-
-
+  read_csv("a,b\n1,2,3\n4,5,6")
+  read_csv("a,b,c\n1,2\n1,2,3,4")
+  read_csv("a,b\n\"1")
+  read_csv("a,b\n1,2\na,b")
+  read_csv("a;b\n1;3")
 
 
 
